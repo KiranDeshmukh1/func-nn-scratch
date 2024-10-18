@@ -46,8 +46,8 @@ def draw_dot(root):
 
     return dot
 
-#  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,
-# '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'
+
+# +  # ++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:++
 
 
 # +---------------------------------+
@@ -55,6 +55,7 @@ def draw_dot(root):
 # +---------------------------------+
 
 def create_value(data, _children=(), _op=None, label=''):
+
     value = SimpleNamespace(
         data=data,
         _prev=list(_children),
@@ -104,10 +105,28 @@ def create_value(data, _children=(), _op=None, label=''):
         return out
     value.tanh = tanh
 
+    def autobackprop():
+        topo = []
+
+        visited = []
+
+        def build_topo(value):
+            if value not in visited:
+                visited.append(value)
+                for child in value._prev:
+                    build_topo(child)
+            topo.append(value)
+
+        build_topo(value)
+
+        value.grad = 1
+        for node in reversed(topo):
+            node._backward()
+    value.autobackprop = autobackprop
     return value
 
-#  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,
-# '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'ii
+
+# +  # ++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:++
 
 
 # +--------------+
@@ -152,15 +171,11 @@ n.label = 'n'
 o = n.tanh()
 o.label = 'o'
 
-# backpropagation manually
-o.grad = 1
-o._backward()
-n._backward()
-x1w1x2w2._backward()
-x1w1._backward()
-x2w2._backward()
+
+# +-------------------------+
+# | Automatic Backpropagation
+# +-------------------------+
+o.autobackprop()
+
 draw_dot(o)
-
-
-#  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,  ,d88b.    ,
-# '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'  '    `Y88P'
+# +  # ++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:+++#++:++#++:++
