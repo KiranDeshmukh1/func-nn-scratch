@@ -154,6 +154,9 @@ class Neuron:
         out = act.tanh()
         return out
 
+    def parameters(self):
+        return self.w + [self.b]
+
 
 class Layer:
     def __init__(self, nin, nout):
@@ -162,6 +165,9 @@ class Layer:
     def __call__(self, x):
         out = [n(x) for n in self.neurons]
         return out[0] if len(out) == 1 else out
+
+    def parameters(self):
+        return [p for neuron in self.neurons for p in neuron.parameters()]
 
 
 class MLP:
@@ -174,7 +180,28 @@ class MLP:
             x = layer(x)
         return x
 
+    def parameters(self):
+        return [p for layer in self.layers for p in layer.parameters()]
 
-x = [2.0, 3.0, 9.0]
+
 L = MLP(3, [4, 4, 1])
-draw_dot(L(x))
+
+xs = [[3.0, 1.0, 4.0], [4.0, 8.0, 6.0], [3.0, 2.0, 3.0]]
+ys = [1.0, -1.0, 1.0]
+
+
+for k in range(20):
+    # forward pass
+    ypred = [L(x) for x in xs]
+    loss = sum([(yout - ygt)**2 for ygt, yout in zip(ys, ypred)])
+
+    # backward pass
+    for p in L.parameters():
+        p.grad = 0.0
+    loss.backward()
+
+    # update
+    for p in L.parameters():
+        p.data += -0.1 * p.grad
+
+    print(k, loss.data)
