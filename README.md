@@ -1,6 +1,6 @@
 # Neural network from scratch 
 I am following Sensei Karpathy's youtube tutorial and implementing neural network from scratch.
-I messed up with functional code hence on other branch i am going ahead with classes
+I messed up with functional code hence on this branch i am going ahead with classes
 
 > “What I cannot create,
 > I do not understand.”
