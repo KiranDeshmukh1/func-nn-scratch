@@ -1,5 +1,6 @@
 import math
 from graphviz import Digraph
+import random
 
 
 class Value:
@@ -138,3 +139,42 @@ def draw_dot(root):
         dot.edge(str(id(n1)), str(id(n2)) + n2._op)
 
     return dot
+
+
+# lets create neuron
+
+class Neuron:
+
+    def __init__(self, nin) -> None:
+        self.w = [Value(random.uniform(-1, 1)) for _ in range(nin)]
+        self.b = Value(random.uniform(-1, 1))
+
+    def __call__(self, x):
+        act = sum((wi*xi for wi, xi in zip(self.w, x)), self.b)
+        out = act.tanh()
+        return out
+
+
+class Layer:
+    def __init__(self, nin, nout):
+        self.neurons = [Neuron(nin) for _ in range(nout)]
+
+    def __call__(self, x):
+        out = [n(x) for n in self.neurons]
+        return out[0] if len(out) == 1 else out
+
+
+class MLP:
+    def __init__(self, nin, nouts):
+        sz = [nin] + nouts
+        self.layers = [Layer(sz[i], sz[i+1]) for i in range(len(nouts))]
+
+    def __call__(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
+
+
+x = [2.0, 3.0, 9.0]
+L = MLP(3, [4, 4, 1])
+draw_dot(L(x))
